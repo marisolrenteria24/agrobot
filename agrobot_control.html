@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgroBot · Panel de control</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#1B5E20">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --soil-950:#0d1210;
+    --soil-900:#131a16;
+    --soil-800:#1b241f;
+    --soil-700:#26332b;
+    --leaf-500:#7cfc9e;
+    --leaf-600:#4fd97c;
+    --leaf-glow: rgba(124,252,158,0.35);
+    --sky-400:#4cc9f0;
+    --amber-500:#ffb627;
+    --alert-500:#ff5c5c;
+    --text-100:#eef3ee;
+    --text-400:#93a396;
+    --text-600:#5e6e62;
+    --font-display:'Space Grotesk', system-ui, sans-serif;
+    --font-mono:'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  body.light-mode{
+    --soil-950:#f5f7f5;
+    --soil-900:#ffffff;
+    --soil-800:#eef2ee;
+    --soil-700:#dbe3db;
+    --leaf-500:#1d8a3f;
+    --leaf-600:#177033;
+    --leaf-glow: rgba(29,138,63,0.18);
+    --sky-400:#0284c7;
+    --amber-500:#b45309;
+    --alert-500:#c62828;
+    --text-100:#12180f;
+    --text-400:#4a564a;
+    --text-600:#7b877b;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+
+  body{
+    background:
+      radial-gradient(circle at 15% 0%, rgba(124,252,158,0.06), transparent 45%),
+      radial-gradient(circle at 90% 100%, rgba(76,201,240,0.05), transparent 40%),
+      var(--soil-950);
+    color:var(--text-100);
+    font-family:var(--font-display);
+    min-height:100vh;
+    padding:20px;
+  }
+
+  .app{
+    max-width:960px;
+    margin:0 auto;
+  }
+
+  /* ---------- HEADER ---------- */
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    padding-bottom:18px;
+    margin-bottom:22px;
+    border-bottom:1px solid var(--soil-700);
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+
+  .brand-mark{
+    width:40px;height:40px;
+    border-radius:10px;
+    background:linear-gradient(145deg, var(--leaf-600), var(--sky-400));
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;
+    box-shadow:0 0 24px var(--leaf-glow);
+    flex-shrink:0;
+  }
+
+  .brand h1{
+    font-size:20px;
+    margin:0;
+    letter-spacing:0.02em;
+  }
+  .brand p{
+    margin:2px 0 0;
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--text-400);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+  }
+
+  #connectBtn{
+    font-family:var(--font-mono);
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:0.03em;
+    padding:11px 20px;
+    border-radius:8px;
+    border:1px solid var(--leaf-600);
+    background:transparent;
+    color:var(--leaf-500);
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease, box-shadow .15s ease;
+  }
+  #connectBtn:hover{ background:rgba(124,252,158,0.08); }
+  #connectBtn:active{ transform:translateY(1px); }
+  #connectBtn.connected{
+    background:var(--leaf-600);
+    color:var(--soil-950);
+    box-shadow:0 0 18px var(--leaf-glow);
+  }
+  #connectBtn:disabled{ opacity:0.5; cursor:not-allowed; }
+
+  .status-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--text-400);
+  }
+  .dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--text-600);
+    transition:background .2s ease, box-shadow .2s ease;
+  }
+  .dot.on{ background:var(--leaf-500); box-shadow:0 0 8px var(--leaf-glow); }
+
+  /* ---------- LAYOUT ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap:20px;
+  }
+  @media (max-width: 760px){
+    .grid{ grid-template-columns:1fr; }
+  }
+
+  .panel{
+    background:var(--soil-900);
+    border:1px solid var(--soil-700);
+    border-radius:14px;
+    padding:20px;
+  }
+  .panel h2{
+    font-size:12px;
+    margin:0 0 16px;
+    color:var(--text-400);
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    font-family:var(--font-mono);
+  }
+
+  /* ---------- DPAD ---------- */
+  .dpad{
+    display:grid;
+    grid-template-columns:64px 64px 64px;
+    grid-template-rows:64px 64px 64px;
+    gap:8px;
+    justify-content:center;
+    margin:6px auto 20px;
+  }
+  .dpad-btn{
+    border-radius:12px;
+    border:1px solid var(--soil-700);
+    background:var(--soil-800);
+    color:var(--text-100);
+    font-size:20px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action:none;
+    transition:background .1s ease, border-color .1s ease, transform .05s ease;
+  }
+  .dpad-btn:active, .dpad-btn.pressed{
+    background:var(--leaf-600);
+    color:var(--soil-950);
+    border-color:var(--leaf-600);
+    transform:scale(0.95);
+  }
+  .dpad-btn:disabled{ opacity:0.35; cursor:not-allowed; }
+  .dpad .stop{
+    grid-column:2; grid-row:2;
+    border-color:var(--alert-500);
+    color:var(--alert-500);
+    font-size:12px;
+    font-family:var(--font-mono);
+    letter-spacing:0.05em;
+  }
+  .dpad .stop:active, .dpad .stop.pressed{
+    background:var(--alert-500);
+    color:var(--soil-950);
+    border-color:var(--alert-500);
+  }
+  .up{grid-column:2;grid-row:1;}
+  .left{grid-column:1;grid-row:2;}
+  .right{grid-column:3;grid-row:2;}
+  .down{grid-column:2;grid-row:3;}
+
+  .hint{
+    text-align:center;
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--text-600);
+    margin-top:-10px;
+    margin-bottom:20px;
+  }
+
+  /* ---------- BOMBA / SERVO ---------- */
+  .control-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 0;
+    border-top:1px solid var(--soil-700);
+  }
+  .control-row:first-of-type{ border-top:none; }
+  .control-label{
+    font-size:14px;
+    font-weight:500;
+  }
+  .control-sub{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--text-400);
+    margin-top:2px;
+  }
+
+  .switch{
+    position:relative;
+    width:52px;height:28px;
+    flex-shrink:0;
+  }
+  .switch input{ opacity:0; width:0; height:0; }
+  .slider-toggle{
+    position:absolute; inset:0;
+    background:var(--soil-700);
+    border-radius:999px;
+    cursor:pointer;
+    transition:background .15s ease;
+  }
+  .slider-toggle::before{
+    content:"";
+    position:absolute;
+    width:20px;height:20px;
+    left:4px; top:4px;
+    background:var(--text-100);
+    border-radius:50%;
+    transition:transform .15s ease;
+  }
+  .switch input:checked + .slider-toggle{ background:var(--leaf-600); }
+  .switch input:checked + .slider-toggle::before{ transform:translateX(24px); }
+  .switch input:disabled + .slider-toggle{ opacity:0.4; cursor:not-allowed; }
+
+  .servo-wrap{ width:100%; }
+  input[type="range"]{
+    width:100%;
+    accent-color: var(--sky-400);
+    height:4px;
+  }
+
+  /* ---------- TELEMETRY ---------- */
+  .tele-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-bottom:18px;
+  }
+  .metric{
+    background:var(--soil-800);
+    border:1px solid var(--soil-700);
+    border-radius:10px;
+    padding:12px 14px;
+  }
+  .metric-label{
+    font-family:var(--font-mono);
+    font-size:10px;
+    color:var(--text-400);
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+  }
+  .metric-value{
+    font-family:var(--font-mono);
+    font-size:22px;
+    font-weight:600;
+    margin-top:4px;
+  }
+  .metric-value.alert{ color:var(--amber-500); }
+  .metric-value.critical{ color:var(--alert-500); }
+
+  /* tank */
+  .tank-row{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:18px;
+  }
+  .tank{
+    width:46px;height:90px;
+    border:2px solid var(--soil-700);
+    border-radius:6px;
+    position:relative;
+    overflow:hidden;
+    background:var(--soil-800);
+    flex-shrink:0;
+  }
+  .tank-fill{
+    position:absolute;
+    left:0;right:0;bottom:0;
+    height:0%;
+    background:linear-gradient(180deg, var(--sky-400), #2b7fa8);
+    transition:height .5s ease;
+  }
+  .tank-label{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--text-400);
+  }
+  .tank-label b{
+    display:block;
+    font-size:20px;
+    color:var(--text-100);
+    margin-top:2px;
+  }
+
+  /* radar */
+  .radar-row{
+    display:flex;
+    align-items:center;
+    gap:16px;
+  }
+  .radar{
+    width:90px;height:90px;
+    position:relative;
+    flex-shrink:0;
+  }
+  .radar svg{ width:100%; height:100%; }
+  .radar-sweep{
+    transform-origin:45px 45px;
+    animation:sweep 2.4s linear infinite;
+  }
+  @keyframes sweep{
+    from{ transform:rotate(0deg); }
+    to{ transform:rotate(360deg); }
+  }
+
+  .alarm-banner{
+    margin-top:18px;
+    padding:10px 14px;
+    border-radius:8px;
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:0.04em;
+    text-align:center;
+    background:var(--soil-800);
+    color:var(--text-600);
+    border:1px solid var(--soil-700);
+    transition:all .2s ease;
+    line-height:1.6;
+  }
+  .alarm-banner.active{
+    background:rgba(255,92,92,0.12);
+    border-color:var(--alert-500);
+    color:var(--alert-500);
+  }
+
+  footer{
+    margin-top:22px;
+    text-align:center;
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--text-600);
+  }
+
+  .panel-full{
+    background:var(--soil-900);
+    border:1px solid var(--soil-700);
+    border-radius:14px;
+    padding:20px;
+    margin-top:20px;
+  }
+  .historial-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .btn-historial{
+    font-family:var(--font-mono);
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.03em;
+    padding:9px 16px;
+    border-radius:8px;
+    border:1px solid var(--leaf-600);
+    background:var(--leaf-600);
+    color:var(--soil-950);
+    cursor:pointer;
+  }
+  .btn-historial:hover{ opacity:0.9; }
+  .btn-historial:active{ transform:translateY(1px); }
+  .btn-historial-secundario{
+    background:transparent;
+    color:var(--text-400);
+    border-color:var(--soil-700);
+  }
+
+  .graficas-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
+  @media (max-width: 520px){
+    .graficas-grid{ grid-template-columns:1fr; }
+  }
+  .grafica-box{
+    background:var(--soil-800);
+    border:1px solid var(--soil-700);
+    border-radius:10px;
+    padding:12px 14px;
+  }
+  .grafica-box .metric-label{
+    font-family:var(--font-mono);
+    font-size:10px;
+    color:var(--text-400);
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    display:flex;
+    justify-content:space-between;
+  }
+  .grafica-box svg{ width:100%; height:56px; margin-top:6px; display:block; }
+  .grafica-box .ultimo-valor{
+    font-family:var(--font-mono);
+    font-weight:600;
+    color:var(--text-100);
+  }
+
+  .bitacora-item{
+    display:flex;
+    gap:12px;
+    background:var(--soil-800);
+    border:1px solid var(--soil-700);
+    border-radius:10px;
+    padding:12px;
+  }
+  .bitacora-item img{
+    width:72px;
+    height:72px;
+    object-fit:cover;
+    border-radius:8px;
+    flex-shrink:0;
+  }
+  .bitacora-item .bitacora-fecha{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--text-400);
+  }
+  .bitacora-item .bitacora-nota{
+    font-size:13px;
+    margin-top:4px;
+  }
+  .bitacora-item .bitacora-descargar{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--sky-400);
+    text-decoration:none;
+    display:inline-block;
+    margin-top:6px;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <header>
+    <div class="brand">
+      <div class="brand-mark">🌱</div>
+      <div>
+        <h1>AgroBot</h1>
+        <p>Carrito agrónomo · Control BLE</p>
+      </div>
+    </div>
+    <div>
+      <button id="connectBtn">Conectar</button>
+      <div class="status-row" style="margin-top:8px; justify-content:flex-end;">
+        <span class="dot" id="statusDot"></span>
+        <span id="statusText">Sin conexión</span>
+      </div>
+    </div>
+  </header>
+
+  <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:12px; flex-wrap:wrap;">
+    <button id="btnInstalar" class="btn-historial" style="display:none;">⬇️ Instalar app</button>
+    <button id="btnTema" class="btn-historial btn-historial-secundario">🌙 Modo oscuro</button>
+    <button id="btnNotificaciones" class="btn-historial btn-historial-secundario">🔔 Activar avisos</button>
+  </div>
+
+  <div class="grid">
+
+    <!-- ============ CONTROLES ============ -->
+    <div class="panel">
+      <h2>Movimiento</h2>
+      <div class="dpad">
+        <button class="dpad-btn up" data-cmd="ADELANTE" disabled>▲</button>
+        <button class="dpad-btn left" data-cmd="IZQUIERDA" disabled>◀</button>
+        <button class="dpad-btn stop" data-cmd="DETENER" disabled>STOP</button>
+        <button class="dpad-btn right" data-cmd="DERECHA" disabled>▶</button>
+        <button class="dpad-btn down" data-cmd="ATRAS" disabled>▼</button>
+      </div>
+      <p class="hint">Mantén presionado para moverte · suelta para detener</p>
+
+      <div class="control-row">
+        <div>
+          <div class="control-label">Bomba de riego</div>
+          <div class="control-sub" id="bombaSub">apagada</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="bombaToggle" disabled>
+          <span class="slider-toggle"></span>
+        </label>
+      </div>
+
+      <div class="control-row">
+        <div>
+          <div class="control-label">Riego automático</div>
+          <div class="control-sub" id="riegoAutoSub">apagado · usa suelo &lt; 30% / &gt; 60%</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="riegoAutoToggle" disabled>
+          <span class="slider-toggle"></span>
+        </label>
+      </div>
+
+      <div class="control-row" style="display:block;">
+        <div style="display:flex; justify-content:space-between;">
+          <div class="control-label">Servo aspersor</div>
+          <div class="control-sub" id="servoVal">50%</div>
+        </div>
+        <div class="servo-wrap" style="margin-top:10px;">
+          <input type="range" id="servoSlider" min="0" max="100" value="50" disabled>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TELEMETRIA ============ -->
+    <div class="panel">
+      <h2>Telemetría</h2>
+
+      <div class="tele-grid">
+        <div class="metric">
+          <div class="metric-label">Temperatura</div>
+          <div class="metric-value" id="tempVal">--°C</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Humedad aire</div>
+          <div class="metric-value" id="humVal">--%</div>
+        </div>
+        <div class="metric" style="grid-column:1 / -1;">
+          <div class="metric-label">Humedad suelo</div>
+          <div class="metric-value" id="sueloVal">--%</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Calidad de aire · MQ135</div>
+          <div class="metric-value" id="aireVal">--</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Lluvia / agua · FC-37</div>
+          <div class="metric-value" id="lluviaVal">--%</div>
+        </div>
+      </div>
+
+      <div class="tank-row">
+        <div class="tank"><div class="tank-fill" id="tankFill"></div></div>
+        <div class="tank-label">Nivel de tanque
+          <b id="aguaVal">--%</b>
+        </div>
+      </div>
+
+      <div class="radar-row">
+        <div class="radar">
+          <svg viewBox="0 0 90 90">
+            <circle cx="45" cy="45" r="42" fill="none" stroke="#26332b" stroke-width="1"/>
+            <circle cx="45" cy="45" r="28" fill="none" stroke="#26332b" stroke-width="1"/>
+            <circle cx="45" cy="45" r="14" fill="none" stroke="#26332b" stroke-width="1"/>
+            <g class="radar-sweep">
+              <line x1="45" y1="45" x2="45" y2="3" stroke="var(--leaf-500)" stroke-width="1.5" opacity="0.8"/>
+            </g>
+          </svg>
+        </div>
+        <div class="tank-label">Distancia obstáculo
+          <b id="distVal">-- cm</b>
+        </div>
+      </div>
+
+      <div class="alarm-banner" id="alarmBanner">Sin obstáculos cercanos</div>
+    </div>
+
+  </div>
+
+  <div class="panel-full">
+    <h2 style="font-size:12px; margin:0 0 16px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Historial de lecturas</h2>
+    <div class="historial-row">
+      <div class="tank-label">Lecturas guardadas: <b id="historialCount">0</b></div>
+      <div style="display:flex; gap:10px;">
+        <button id="btnDescargarCSV" class="btn-historial">Descargar CSV</button>
+        <button id="btnLimpiarHistorial" class="btn-historial btn-historial-secundario">Limpiar</button>
+      </div>
+    </div>
+    <p class="hint" style="margin-top:14px; margin-bottom:0;">
+      Se guarda una lectura cada 10 segundos mientras estés conectado. Al desconectar o
+      cerrar la pestaña se pierde lo que no hayas descargado, así que descarga el CSV
+      antes de cerrar la app.
+    </p>
+  </div>
+
+  <div class="panel-full">
+    <h2 style="font-size:12px; margin:0 0 4px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Clima real de tu zona</h2>
+    <p class="hint" style="margin-top:0;">Datos de Open-Meteo (gratis, sin cuenta). Útil para comparar contra tus sensores y decidir si conviene regar hoy.</p>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <button id="btnClima" class="btn-historial">📍 Usar mi ubicación</button>
+      <span id="climaEstado" class="control-sub">Sin datos todavía</span>
+    </div>
+    <div class="graficas-grid" id="climaGrid" style="margin-top:14px; display:none;">
+      <div class="grafica-box"><div class="metric-label">Temperatura exterior</div><div class="ultimo-valor" id="climaTemp">--</div></div>
+      <div class="grafica-box"><div class="metric-label">Humedad relativa</div><div class="ultimo-valor" id="climaHumedad">--</div></div>
+      <div class="grafica-box"><div class="metric-label">Prob. de lluvia hoy</div><div class="ultimo-valor" id="climaLluvia">--</div></div>
+      <div class="grafica-box"><div class="metric-label">Precipitación actual</div><div class="ultimo-valor" id="climaPrecip">--</div></div>
+    </div>
+    <p id="climaConsejo" class="hint" style="margin-top:12px; display:none;"></p>
+  </div>
+
+  <div class="panel-full">
+    <h2 style="font-size:12px; margin:0 0 4px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Resumen de la sesión</h2>
+    <p class="hint" style="margin-top:0;">Mín / promedio / máx de lo registrado desde que abriste la app (se reinicia al cerrarla).</p>
+    <div class="graficas-grid" id="resumenGrid">
+      <div class="grafica-box"><div class="metric-label">Temperatura</div><div class="ultimo-valor" id="resumenTemp">--</div></div>
+      <div class="grafica-box"><div class="metric-label">Humedad suelo</div><div class="ultimo-valor" id="resumenSuelo">--</div></div>
+      <div class="grafica-box"><div class="metric-label">Nivel tanque</div><div class="ultimo-valor" id="resumenAgua">--</div></div>
+      <div class="grafica-box"><div class="metric-label">Lluvia (FC-37)</div><div class="ultimo-valor" id="resumenLluvia">--</div></div>
+      <div class="grafica-box" style="grid-column:1 / -1;"><div class="metric-label">Calidad de aire (MQ135)</div><div class="ultimo-valor" id="resumenAire">--</div></div>
+    </div>
+  </div>
+
+  <div class="panel-full">
+    <h2 style="font-size:12px; margin:0 0 16px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Tendencias</h2>
+    <div class="graficas-grid">
+      <div class="grafica-box">
+        <div class="metric-label"><span>Temperatura</span><span class="ultimo-valor" id="chartTempVal">--</span></div>
+        <svg id="chartTemp" viewBox="0 0 300 56" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="grafica-box">
+        <div class="metric-label"><span>Humedad suelo</span><span class="ultimo-valor" id="chartSueloVal">--</span></div>
+        <svg id="chartSuelo" viewBox="0 0 300 56" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="grafica-box">
+        <div class="metric-label"><span>Nivel tanque</span><span class="ultimo-valor" id="chartAguaVal">--</span></div>
+        <svg id="chartAgua" viewBox="0 0 300 56" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="grafica-box">
+        <div class="metric-label"><span>Lluvia (FC-37)</span><span class="ultimo-valor" id="chartLluviaVal">--</span></div>
+        <svg id="chartLluvia" viewBox="0 0 300 56" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="grafica-box" style="grid-column:1 / -1;">
+        <div class="metric-label"><span>Calidad de aire (MQ135)</span><span class="ultimo-valor" id="chartAireVal">--</span></div>
+        <svg id="chartAire" viewBox="0 0 300 56" preserveAspectRatio="none"></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-full">
+    <h2 style="font-size:12px; margin:0 0 16px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Música</h2>
+    <p class="hint" style="margin-top:0;">
+      Sube tu propia canción (o una gratuita de bancos como Pixabay Music /
+      YouTube Audio Library). No incluyo música con derechos de autor.
+    </p>
+    <input type="file" accept="audio/*" id="inputMusica" style="display:none;">
+    <audio id="reproductor" loop></audio>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <button id="btnElegirMusica" class="btn-historial btn-historial-secundario">🎵 Elegir canción</button>
+      <button id="btnPlayPause" class="btn-historial" disabled>▶ Reproducir</button>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px; margin-top:14px;">
+      <span class="control-sub">Volumen</span>
+      <input type="range" id="volumenSlider" min="0" max="100" value="60" style="flex:1;">
+    </div>
+    <div class="control-row" style="margin-top:14px;">
+      <div>
+        <div class="control-label">Reproducir al conectar</div>
+        <div class="control-sub" id="cancionNombre">ninguna canción cargada</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="autoplayToggle">
+        <span class="slider-toggle"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="panel-full">
+    <h2 style="font-size:12px; margin:0 0 16px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Control por voz</h2>
+    <p class="hint" style="margin-top:0;">
+      Di: "adelante", "atrás", "izquierda", "derecha", "detente", "prende la bomba",
+      "apaga la bomba". Solo funciona en Chrome.
+    </p>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <button id="btnVoz" class="btn-historial" disabled>🎙️ Activar control por voz</button>
+      <span id="vozEstado" class="control-sub">Conéctate al carrito primero</span>
+    </div>
+  </div>
+
+  <div class="panel-full">
+    <h2 style="font-size:12px; margin:0 0 16px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Diagnóstico de planta</h2>
+    <p class="hint" style="margin-top:0;">
+      Análisis básico por color (verde vs. amarillo/seco). No es una IA real —
+      es una estimación rápida, útil como primer vistazo.
+    </p>
+    <input type="file" accept="image/*" capture="environment" id="inputFotoPlanta" style="display:none;">
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <button id="btnTomarFoto" class="btn-historial">📷 Tomar foto</button>
+      <button id="btnAnalizarFoto" class="btn-historial btn-historial-secundario" disabled>Analizar</button>
+    </div>
+    <img id="previewFoto" style="display:none; max-width:100%; border-radius:10px; margin-top:14px; border:1px solid var(--soil-700);">
+    <div id="resultadoAnalisis" style="margin-top:14px; font-family:var(--font-mono); font-size:13px; display:none;"></div>
+
+    <textarea id="notaBitacora" placeholder="Nota opcional (ej. 'le puse fertilizante', 'se ve marchita')" rows="2"
+      style="width:100%; margin-top:14px; padding:10px; border-radius:8px; background:var(--soil-800); border:1px solid var(--soil-700); color:var(--text-100); font-family:inherit; resize:vertical;"></textarea>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+      <button id="btnGuardarBitacora" class="btn-historial">📓 Guardar en bitácora</button>
+    </div>
+  </div>
+
+  <div class="panel-full">
+    <h2 style="font-size:12px; margin:0 0 4px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Bitácora de la planta</h2>
+    <p class="hint" style="margin-top:0;">Se guarda mientras la app esté abierta. Descarga las fotos que quieras conservar.</p>
+    <div id="galeriaBitacora" style="display:flex; flex-direction:column; gap:12px;">
+      <p class="hint" id="bitacoraVacia">Todavía no has guardado ninguna entrada.</p>
+    </div>
+  </div>
+
+  <footer>Web Bluetooth requiere Chrome o Edge (escritorio o Android) · No disponible en iOS</footer>
+</div>
+
+<script>
+const SERVICE_UUID        = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
+const CONTROL_CHAR_UUID   = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+const TELEMETRY_CHAR_UUID = "beb5483f-36e1-4688-b7f5-ea07361b26a8";
+
+let device, server, controlChar, telemetryChar;
+
+const connectBtn   = document.getElementById('connectBtn');
+const statusDot    = document.getElementById('statusDot');
+const statusText   = document.getElementById('statusText');
+const dpadButtons  = document.querySelectorAll('.dpad-btn');
+const bombaToggle  = document.getElementById('bombaToggle');
+const bombaSub     = document.getElementById('bombaSub');
+const riegoAutoToggle = document.getElementById('riegoAutoToggle');
+const riegoAutoSub    = document.getElementById('riegoAutoSub');
+const servoSlider  = document.getElementById('servoSlider');
+const servoVal     = document.getElementById('servoVal');
+
+const tempVal   = document.getElementById('tempVal');
+const humVal    = document.getElementById('humVal');
+const sueloVal  = document.getElementById('sueloVal');
+const aguaVal   = document.getElementById('aguaVal');
+const tankFill  = document.getElementById('tankFill');
+const distVal   = document.getElementById('distVal');
+const aireVal   = document.getElementById('aireVal');
+const lluviaVal = document.getElementById('lluviaVal');
+const alarmBanner = document.getElementById('alarmBanner');
+
+const historialCount = document.getElementById('historialCount');
+const btnDescargarCSV = document.getElementById('btnDescargarCSV');
+const btnLimpiarHistorial = document.getElementById('btnLimpiarHistorial');
+
+let historial = [];
+const LOG_INTERVAL_MS = 10000; // guarda una lectura cada 10 segundos
+let ultimoLog = 0;
+
+function setConnectedUI(connected){
+  connectBtn.textContent = connected ? 'Desconectar' : 'Conectar';
+  connectBtn.classList.toggle('connected', connected);
+  statusDot.classList.toggle('on', connected);
+  statusText.textContent = connected ? 'Conectado' : 'Sin conexión';
+  dpadButtons.forEach(b => b.disabled = !connected);
+  bombaToggle.disabled = !connected;
+  riegoAutoToggle.disabled = !connected;
+  servoSlider.disabled = !connected;
+  btnVoz.disabled = !connected || !SpeechRecognitionAPI;
+  vozEstado.textContent = connected
+    ? (SpeechRecognitionAPI ? 'Listo para escuchar' : 'Este navegador no soporta control por voz')
+    : 'Conéctate al carrito primero';
+}
+
+async function connect(){
+  if (!navigator.bluetooth) {
+    alert('Este navegador no soporta Web Bluetooth. Usa Chrome o Edge en escritorio o Android.');
+    return;
+  }
+  try {
+    connectBtn.disabled = true;
+    statusText.textContent = 'Buscando...';
+
+    device = await navigator.bluetooth.requestDevice({
+      filters: [{ services: [SERVICE_UUID] }]
+    });
+
+    device.addEventListener('gattserverdisconnected', onDisconnected);
+
+    statusText.textContent = 'Conectando...';
+    server = await device.gatt.connect();
+    const service = await server.getPrimaryService(SERVICE_UUID);
+
+    controlChar = await service.getCharacteristic(CONTROL_CHAR_UUID);
+    telemetryChar = await service.getCharacteristic(TELEMETRY_CHAR_UUID);
+
+    await telemetryChar.startNotifications();
+    telemetryChar.addEventListener('characteristicvaluechanged', onTelemetry);
+
+    setConnectedUI(true);
+    reproducirChime('conexion');
+    intentarAutoplayMusica();
+  } catch (err) {
+    console.error(err);
+    statusText.textContent = 'Error al conectar';
+  } finally {
+    connectBtn.disabled = false;
+  }
+}
+
+function disconnect(){
+  if (device && device.gatt.connected) {
+    device.gatt.disconnect();
+  } else {
+    onDisconnected();
+  }
+}
+
+function onDisconnected(){
+  setConnectedUI(false);
+  reproducirChime('desconexion');
+}
+
+connectBtn.addEventListener('click', () => {
+  if (connectBtn.classList.contains('connected')) {
+    disconnect();
+  } else {
+    connect();
+  }
+});
+
+async function sendCommand(cmd){
+  if (!controlChar) return;
+  try {
+    const encoder = new TextEncoder();
+    await controlChar.writeValueWithoutResponse(encoder.encode(cmd));
+  } catch (err) {
+    console.error('Error enviando comando', cmd, err);
+  }
+}
+
+// -------- D-PAD: mantener presionado para moverse --------
+dpadButtons.forEach(btn => {
+  const cmd = btn.dataset.cmd;
+
+  const start = (e) => {
+    e.preventDefault();
+    btn.classList.add('pressed');
+    sendCommand(cmd);
+  };
+  const stop = (e) => {
+    btn.classList.remove('pressed');
+    if (cmd !== 'DETENER') sendCommand('DETENER');
+  };
+
+  btn.addEventListener('pointerdown', start);
+  btn.addEventListener('pointerup', stop);
+  btn.addEventListener('pointerleave', stop);
+  btn.addEventListener('pointercancel', stop);
+});
+
+// -------- BOMBA --------
+bombaToggle.addEventListener('change', () => {
+  const on = bombaToggle.checked;
+  bombaSub.textContent = on ? 'encendida' : 'apagada';
+  sendCommand(on ? 'BOMBA_ON' : 'BOMBA_OFF');
+});
+
+// -------- RIEGO AUTOMATICO (histeresis: enciende <30%, apaga >60%) --------
+const UMBRAL_RIEGO_ON = 30;
+const UMBRAL_RIEGO_OFF = 60;
+let riegoAutomatico = false;
+
+riegoAutoToggle.addEventListener('change', () => {
+  riegoAutomatico = riegoAutoToggle.checked;
+  riegoAutoSub.textContent = riegoAutomatico
+    ? `activo · enciende <${UMBRAL_RIEGO_ON}% / apaga >${UMBRAL_RIEGO_OFF}%`
+    : `apagado · usa suelo <${UMBRAL_RIEGO_ON}% / >${UMBRAL_RIEGO_OFF}%`;
+});
+
+function evaluarRiegoAutomatico(sueloPct, bombaEncendida){
+  if (!riegoAutomatico) return;
+  if (sueloPct < UMBRAL_RIEGO_ON && !bombaEncendida) {
+    sendCommand('BOMBA_ON');
+  } else if (sueloPct > UMBRAL_RIEGO_OFF && bombaEncendida) {
+    sendCommand('BOMBA_OFF');
+  }
+}
+
+// -------- SERVO --------
+let servoDebounce;
+servoSlider.addEventListener('input', () => {
+  const v = servoSlider.value;
+  servoVal.textContent = v + '%';
+  clearTimeout(servoDebounce);
+  servoDebounce = setTimeout(() => sendCommand('SERVO:' + v), 80);
+});
+
+// -------- TELEMETRIA --------
+function onTelemetry(event){
+  const decoder = new TextDecoder();
+  const raw = decoder.decode(event.target.value);
+  // "TEMP:24.5;HUM:55.0;SUELO:40;AGUA:80;DIST:15;ALARMA:0;BOMBA:1;AIRE:1200;ALERTA_AIRE:0;LLUVIA:30;ALERTA_LLUVIA:0"
+
+  const data = {};
+  raw.split(';').forEach(pair => {
+    const [k, v] = pair.split(':');
+    if (k) data[k] = v;
+  });
+
+  registrarLectura(data);
+
+  if (data.TEMP  !== undefined) tempVal.textContent  = data.TEMP + '°C';
+  if (data.HUM   !== undefined) humVal.textContent   = data.HUM + '%';
+  if (data.SUELO !== undefined) sueloVal.textContent = data.SUELO + '%';
+
+  if (data.AGUA !== undefined) {
+    aguaVal.textContent = data.AGUA + '%';
+    tankFill.style.height = data.AGUA + '%';
+  }
+
+  if (data.DIST !== undefined) {
+    distVal.textContent = data.DIST + ' cm';
+  }
+
+  const alertaAire = data.ALERTA_AIRE === '1';
+  if (data.AIRE !== undefined) {
+    aireVal.textContent = data.AIRE;
+    aireVal.classList.toggle('alert', alertaAire);
+  }
+
+  const alertaLluvia = data.ALERTA_LLUVIA === '1';
+  if (data.LLUVIA !== undefined) {
+    lluviaVal.textContent = data.LLUVIA + '%';
+    lluviaVal.classList.toggle('alert', alertaLluvia);
+  }
+
+  if (data.BOMBA !== undefined) {
+    const on = data.BOMBA === '1';
+    bombaToggle.checked = on;
+    bombaSub.textContent = on ? 'encendida' : 'apagada';
+
+    if (data.SUELO !== undefined) {
+      evaluarRiegoAutomatico(parseInt(data.SUELO), on);
+    }
+  }
+
+  // -------- Banner combinado de alertas --------
+  const tanqueVacio = data.AGUA !== undefined && parseInt(data.AGUA) < 10;
+  const obstaculo = data.ALARMA === '1';
+
+  const mensajes = [];
+  if (obstaculo)     mensajes.push('⚠ Obstáculo cercano');
+  if (alertaAire)    mensajes.push('⚠ Calidad de aire mala (MQ135)');
+  if (alertaLluvia)  mensajes.push('⚠ Agua / lluvia detectada (FC-37)');
+  if (tanqueVacio)   mensajes.push('⚠ Nivel de tanque bajo');
+
+  if (mensajes.length > 0) {
+    alarmBanner.classList.add('active');
+    alarmBanner.innerHTML = mensajes.join('<br>');
+    notificarAlertaSiEsNueva(mensajes);
+  } else {
+    alarmBanner.classList.remove('active');
+    alarmBanner.textContent = 'Sin novedades';
+  }
+}
+
+// -------- HISTORIAL / EXPORTAR CSV --------
+function registrarLectura(data){
+  const ahora = Date.now();
+  if (ahora - ultimoLog < LOG_INTERVAL_MS) return;
+  ultimoLog = ahora;
+
+  const fechaObj = new Date();
+  const fecha = fechaObj.toLocaleDateString('es-MX') + ' ' + fechaObj.toLocaleTimeString('es-MX');
+
+  historial.push({
+    fecha,
+    temp: data.TEMP ?? '',
+    hum: data.HUM ?? '',
+    suelo: data.SUELO ?? '',
+    agua: data.AGUA ?? '',
+    dist: data.DIST ?? '',
+    alarma: data.ALARMA ?? '',
+    bomba: data.BOMBA ?? '',
+    aire: data.AIRE ?? '',
+    alertaAire: data.ALERTA_AIRE ?? '',
+    lluvia: data.LLUVIA ?? '',
+    alertaLluvia: data.ALERTA_LLUVIA ?? ''
+  });
+
+  historialCount.textContent = historial.length;
+  actualizarGraficas();
+  actualizarResumen();
+}
+
+function descargarCSV(){
+  if (historial.length === 0) {
+    alert('Todavía no hay lecturas guardadas. Conéctate y espera unos segundos.');
+    return;
+  }
+
+  const encabezados = [
+    'Fecha', 'Temperatura(C)', 'Humedad aire(%)', 'Humedad suelo(%)',
+    'Nivel agua(%)', 'Distancia(cm)', 'Alarma obstaculo', 'Bomba',
+    'Aire MQ135(raw)', 'Alerta aire', 'Lluvia FC-37(%)', 'Alerta lluvia'
+  ];
+
+  const filas = historial.map(r => [
+    r.fecha, r.temp, r.hum, r.suelo, r.agua, r.dist,
+    r.alarma, r.bomba, r.aire, r.alertaAire, r.lluvia, r.alertaLluvia
+  ].join(','));
+
+  const csv = [encabezados.join(','), ...filas].join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+
+  const marcaTiempo = new Date().toISOString().replace(/[:.]/g, '-');
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `agrobot_historial_${marcaTiempo}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+btnDescargarCSV.addEventListener('click', descargarCSV);
+
+btnLimpiarHistorial.addEventListener('click', () => {
+  if (historial.length === 0) return;
+  if (confirm('¿Borrar todas las lecturas guardadas? No se puede deshacer.')) {
+    historial = [];
+    historialCount.textContent = '0';
+    ['Temp','Suelo','Agua','Lluvia','Aire'].forEach(id => {
+      document.getElementById('chart' + id).innerHTML = '';
+      document.getElementById('chart' + id + 'Val').textContent = '--';
+    });
+  }
+});
+
+// -------- GRAFICAS DE TENDENCIA (sparklines SVG, sin librerias) --------
+const MAX_PUNTOS_GRAFICA = 20;
+
+function dibujarSparkline(svgId, valores, sufijo, color) {
+  const svg = document.getElementById(svgId);
+  if (valores.length === 0) { svg.innerHTML = ''; return; }
+
+  const recientes = valores.slice(-MAX_PUNTOS_GRAFICA);
+  const minV = Math.min(...recientes);
+  const maxV = Math.max(...recientes);
+  const rango = (maxV - minV) || 1;
+
+  const anchoSvg = 300, altoSvg = 56, margen = 4;
+  const puntos = recientes.map((v, i) => {
+    const x = recientes.length === 1 ? anchoSvg / 2 : (i / (recientes.length - 1)) * (anchoSvg - margen * 2) + margen;
+    const y = altoSvg - margen - ((v - minV) / rango) * (altoSvg - margen * 2);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+
+  svg.innerHTML = `
+    <polyline points="${puntos.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${puntos[puntos.length - 1].split(',')[0]}" cy="${puntos[puntos.length - 1].split(',')[1]}" r="3" fill="${color}"/>
+  `;
+
+  const ultimo = recientes[recientes.length - 1];
+  document.getElementById(svgId + 'Val').textContent = ultimo.toFixed(1) + sufijo;
+}
+
+function actualizarGraficas() {
+  const temps   = historial.map(r => parseFloat(r.temp)).filter(v => !isNaN(v));
+  const suelos  = historial.map(r => parseFloat(r.suelo)).filter(v => !isNaN(v));
+  const aguas   = historial.map(r => parseFloat(r.agua)).filter(v => !isNaN(v));
+  const lluvias = historial.map(r => parseFloat(r.lluvia)).filter(v => !isNaN(v));
+  const aires   = historial.map(r => parseFloat(r.aire)).filter(v => !isNaN(v));
+
+  dibujarSparkline('chartTemp', temps, '°C', '#4ade80');
+  dibujarSparkline('chartSuelo', suelos, '%', '#38bdf8');
+  dibujarSparkline('chartAgua', aguas, '%', '#38bdf8');
+  dibujarSparkline('chartLluvia', lluvias, '%', '#818cf8');
+  dibujarSparkline('chartAire', aires, '', '#fbbf24');
+}
+
+// -------- DIAGNOSTICO DE PLANTA POR COLOR (sin IA externa, gratis) --------
+const inputFotoPlanta = document.getElementById('inputFotoPlanta');
+const btnTomarFoto = document.getElementById('btnTomarFoto');
+const btnAnalizarFoto = document.getElementById('btnAnalizarFoto');
+const previewFoto = document.getElementById('previewFoto');
+const resultadoAnalisis = document.getElementById('resultadoAnalisis');
+
+let imagenCargada = null;
+
+btnTomarFoto.addEventListener('click', () => inputFotoPlanta.click());
+
+inputFotoPlanta.addEventListener('change', (e) => {
+  const archivo = e.target.files[0];
+  if (!archivo) return;
+
+  const lector = new FileReader();
+  lector.onload = (evt) => {
+    imagenCargada = new Image();
+    imagenCargada.onload = () => {
+      previewFoto.src = evt.target.result;
+      previewFoto.style.display = 'block';
+      btnAnalizarFoto.disabled = false;
+      resultadoAnalisis.style.display = 'none';
+    };
+    imagenCargada.src = evt.target.result;
+  };
+  lector.readAsDataURL(archivo);
+});
+
+btnAnalizarFoto.addEventListener('click', () => {
+  if (!imagenCargada) return;
+
+  const canvas = document.createElement('canvas');
+  const escala = 100; // reducir tamaño para analizar rapido
+  canvas.width = escala;
+  canvas.height = escala;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(imagenCargada, 0, 0, escala, escala);
+
+  const pixeles = ctx.getImageData(0, 0, escala, escala).data;
+  let verdes = 0, amarillentos = 0, totalHoja = 0;
+
+  for (let i = 0; i < pixeles.length; i += 4) {
+    const r = pixeles[i], g = pixeles[i + 1], b = pixeles[i + 2];
+    const brillo = (r + g + b) / 3;
+    if (brillo < 25 || brillo > 240) continue; // ignora fondo muy oscuro/muy claro
+
+    if (g > r * 1.05 && g > b * 1.1) {
+      verdes++;
+      totalHoja++;
+    } else if (r > b * 1.15 && g > b * 1.1 && Math.abs(r - g) < 60) {
+      amarillentos++;
+      totalHoja++;
+    }
+  }
+
+  if (totalHoja < 50) {
+    resultadoAnalisis.innerHTML = '⚠️ No se detectó suficiente follaje en la foto. Acércate más a la planta e intenta de nuevo.';
+  } else {
+    const pctVerde = Math.round((verdes / totalHoja) * 100);
+    let mensaje;
+    if (pctVerde >= 65) {
+      mensaje = `🌿 Se ve saludable — ~${pctVerde}% del follaje detectado es verde.`;
+    } else if (pctVerde >= 35) {
+      mensaje = `🍂 Posible estrés leve — ~${pctVerde}% verde, el resto amarillento/seco. Revisa riego o luz.`;
+    } else {
+      mensaje = `⚠️ Posible estrés o enfermedad — solo ~${pctVerde}% de follaje verde detectado.`;
+    }
+    resultadoAnalisis.innerHTML = mensaje + '<br><span style="opacity:0.6; font-size:11px;">Análisis por color, no es diagnóstico profesional.</span>';
+  }
+
+  resultadoAnalisis.style.display = 'block';
+});
+
+// -------- BITACORA MANUAL + GALERIA --------
+const notaBitacora = document.getElementById('notaBitacora');
+const btnGuardarBitacora = document.getElementById('btnGuardarBitacora');
+const galeriaBitacora = document.getElementById('galeriaBitacora');
+const bitacoraVacia = document.getElementById('bitacoraVacia');
+
+let bitacora = [];
+
+btnGuardarBitacora.addEventListener('click', () => {
+  const nota = notaBitacora.value.trim();
+  const foto = imagenCargada ? previewFoto.src : null;
+
+  if (!nota && !foto) {
+    alert('Agrega una nota o una foto antes de guardar.');
+    return;
+  }
+
+  const fechaObj = new Date();
+  const fecha = fechaObj.toLocaleDateString('es-MX') + ' ' + fechaObj.toLocaleTimeString('es-MX');
+  const resultadoTexto = resultadoAnalisis.style.display === 'block' ? resultadoAnalisis.textContent : '';
+
+  bitacora.unshift({ fecha, nota, foto, resultadoTexto });
+  renderizarBitacora();
+
+  notaBitacora.value = '';
+});
+
+function renderizarBitacora(){
+  bitacoraVacia.style.display = bitacora.length === 0 ? 'block' : 'none';
+  galeriaBitacora.querySelectorAll('.bitacora-item').forEach(el => el.remove());
+
+  bitacora.forEach((entrada, idx) => {
+    const item = document.createElement('div');
+    item.className = 'bitacora-item';
+
+    const imgHtml = entrada.foto
+      ? `<img src="${entrada.foto}" alt="foto planta">`
+      : `<div style="width:72px; height:72px; border-radius:8px; background:var(--soil-700); display:flex; align-items:center; justify-content:center; font-size:22px;">📓</div>`;
+
+    const descargarHtml = entrada.foto
+      ? `<a class="bitacora-descargar" download="agrobot_bitacora_${idx}.jpg" href="${entrada.foto}">Descargar foto</a>`
+      : '';
+
+    item.innerHTML = `
+      ${imgHtml}
+      <div style="flex:1;">
+        <div class="bitacora-fecha">${entrada.fecha}</div>
+        ${entrada.nota ? `<div class="bitacora-nota">${entrada.nota}</div>` : ''}
+        ${entrada.resultadoTexto ? `<div class="bitacora-nota" style="opacity:0.7; font-size:12px;">${entrada.resultadoTexto}</div>` : ''}
+        ${descargarHtml}
+      </div>
+    `;
+    galeriaBitacora.appendChild(item);
+  });
+}
+
+// -------- MODO CLARO / OSCURO --------
+const btnTema = document.getElementById('btnTema');
+btnTema.addEventListener('click', () => {
+  const claro = document.body.classList.toggle('light-mode');
+  btnTema.textContent = claro ? '☀️ Modo claro' : '🌙 Modo oscuro';
+});
+
+// -------- NOTIFICACIONES Y VIBRACION --------
+const btnNotificaciones = document.getElementById('btnNotificaciones');
+let notificacionesActivas = false;
+let ultimoConjuntoAlertas = '';
+
+btnNotificaciones.addEventListener('click', async () => {
+  if (!('Notification' in window)) {
+    alert('Este navegador no soporta notificaciones.');
+    return;
+  }
+  const permiso = await Notification.requestPermission();
+  notificacionesActivas = permiso === 'granted';
+  btnNotificaciones.textContent = notificacionesActivas ? '🔔 Avisos activos' : '🔕 Sin permiso';
+});
+
+function notificarAlertaSiEsNueva(mensajes){
+  const conjunto = mensajes.join('|');
+  if (conjunto === ultimoConjuntoAlertas) return; // ya se avisó de esto mismo
+  ultimoConjuntoAlertas = conjunto;
+
+  if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+
+  if (notificacionesActivas && Notification.permission === 'granted') {
+    new Notification('AgroBot · Alerta', {
+      body: mensajes.join(' · ').replace(/⚠ /g, ''),
+      icon: undefined
+    });
+  }
+}
+
+// -------- RESUMEN DE LA SESION (min/prom/max) --------
+function resumenTexto(valores, sufijo){
+  const nums = valores.filter(v => !isNaN(v));
+  if (nums.length === 0) return '--';
+  const min = Math.min(...nums).toFixed(1);
+  const max = Math.max(...nums).toFixed(1);
+  const prom = (nums.reduce((a,b)=>a+b,0) / nums.length).toFixed(1);
+  return `${min}${sufijo} / ${prom}${sufijo} / ${max}${sufijo}`;
+}
+
+function actualizarResumen(){
+  document.getElementById('resumenTemp').textContent   = resumenTexto(historial.map(r=>parseFloat(r.temp)), '°C');
+  document.getElementById('resumenSuelo').textContent  = resumenTexto(historial.map(r=>parseFloat(r.suelo)), '%');
+  document.getElementById('resumenAgua').textContent   = resumenTexto(historial.map(r=>parseFloat(r.agua)), '%');
+  document.getElementById('resumenLluvia').textContent = resumenTexto(historial.map(r=>parseFloat(r.lluvia)), '%');
+  document.getElementById('resumenAire').textContent   = resumenTexto(historial.map(r=>parseFloat(r.aire)), '');
+}
+
+// -------- CONTROL POR VOZ --------
+const btnVoz = document.getElementById('btnVoz');
+const vozEstado = document.getElementById('vozEstado');
+const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+let reconocimiento = null;
+let vozActiva = false;
+
+if (SpeechRecognitionAPI) {
+  reconocimiento = new SpeechRecognitionAPI();
+  reconocimiento.lang = 'es-MX';
+  reconocimiento.continuous = true;
+  reconocimiento.interimResults = false;
+
+  reconocimiento.onresult = (event) => {
+    const frase = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+    vozEstado.textContent = `Escuché: "${frase}"`;
+    interpretarComandoDeVoz(frase);
+  };
+
+  reconocimiento.onerror = (e) => {
+    vozEstado.textContent = 'Error de reconocimiento: ' + e.error;
+  };
+
+  reconocimiento.onend = () => {
+    if (vozActiva) reconocimiento.start(); // se reinicia solo mientras siga activo
+  };
+} else {
+  btnVoz.disabled = true;
+  vozEstado.textContent = 'Este navegador no soporta control por voz';
+}
+
+btnVoz.addEventListener('click', () => {
+  if (!reconocimiento) return;
+  vozActiva = !vozActiva;
+  if (vozActiva) {
+    reconocimiento.start();
+    btnVoz.textContent = '🛑 Desactivar control por voz';
+    vozEstado.textContent = 'Escuchando...';
+  } else {
+    reconocimiento.stop();
+    btnVoz.textContent = '🎙️ Activar control por voz';
+    vozEstado.textContent = 'Control por voz desactivado';
+  }
+});
+
+function interpretarComandoDeVoz(frase){
+  if (frase.includes('adelante')) sendCommand('ADELANTE');
+  else if (frase.includes('atrás') || frase.includes('atras') || frase.includes('reversa')) sendCommand('ATRAS');
+  else if (frase.includes('izquierda')) sendCommand('IZQUIERDA');
+  else if (frase.includes('derecha')) sendCommand('DERECHA');
+  else if (frase.includes('detente') || frase.includes('alto') || frase.includes('para')) sendCommand('DETENER');
+  else if (frase.includes('prende la bomba') || frase.includes('enciende la bomba') || frase.includes('activa la bomba')) {
+    bombaToggle.checked = true;
+    bombaSub.textContent = 'encendida';
+    sendCommand('BOMBA_ON');
+  } else if (frase.includes('apaga la bomba') || frase.includes('para la bomba')) {
+    bombaToggle.checked = false;
+    bombaSub.textContent = 'apagada';
+    sendCommand('BOMBA_OFF');
+  }
+}
+
+// -------- CHIME DE CONEXION/DESCONEXION (generado por codigo, sin archivos) --------
+let audioCtx = null;
+function tono(frecuencia, inicio, duracion, ctx){
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.frequency.value = frecuencia;
+  osc.type = 'sine';
+  gain.gain.setValueAtTime(0.0001, ctx.currentTime + inicio);
+  gain.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + inicio + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + inicio + duracion);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(ctx.currentTime + inicio);
+  osc.stop(ctx.currentTime + inicio + duracion + 0.05);
+}
+
+function reproducirChime(tipo){
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (tipo === 'conexion') {
+      tono(523.25, 0,    0.12, audioCtx); // Do
+      tono(659.25, 0.12, 0.12, audioCtx); // Mi
+      tono(783.99, 0.24, 0.18, audioCtx); // Sol
+    } else {
+      tono(783.99, 0,    0.12, audioCtx); // Sol
+      tono(523.25, 0.12, 0.18, audioCtx); // Do (baja)
+    }
+  } catch (e) {
+    console.warn('No se pudo reproducir el chime:', e);
+  }
+}
+
+// -------- REPRODUCTOR DE MUSICA (tu propia cancion) --------
+const inputMusica = document.getElementById('inputMusica');
+const btnElegirMusica = document.getElementById('btnElegirMusica');
+const reproductor = document.getElementById('reproductor');
+const btnPlayPause = document.getElementById('btnPlayPause');
+const volumenSlider = document.getElementById('volumenSlider');
+const cancionNombre = document.getElementById('cancionNombre');
+const autoplayToggle = document.getElementById('autoplayToggle');
+
+reproductor.volume = volumenSlider.value / 100;
+
+btnElegirMusica.addEventListener('click', () => inputMusica.click());
+
+inputMusica.addEventListener('change', (e) => {
+  const archivo = e.target.files[0];
+  if (!archivo) return;
+  const url = URL.createObjectURL(archivo);
+  reproductor.src = url;
+  cancionNombre.textContent = archivo.name;
+  btnPlayPause.disabled = false;
+});
+
+btnPlayPause.addEventListener('click', () => {
+  if (reproductor.paused) {
+    reproductor.play();
+    btnPlayPause.textContent = '⏸ Pausar';
+  } else {
+    reproductor.pause();
+    btnPlayPause.textContent = '▶ Reproducir';
+  }
+});
+
+volumenSlider.addEventListener('input', () => {
+  reproductor.volume = volumenSlider.value / 100;
+});
+
+reproductor.addEventListener('ended', () => {
+  btnPlayPause.textContent = '▶ Reproducir';
+});
+
+function intentarAutoplayMusica(){
+  if (autoplayToggle.checked && reproductor.src) {
+    reproductor.play().then(() => {
+      btnPlayPause.textContent = '⏸ Pausar';
+    }).catch(() => {
+      // el navegador puede bloquear el autoplay hasta que el usuario interactue una vez
+    });
+  }
+}
+
+// -------- INSTALAR COMO APP (PWA) --------
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch((e) => {
+      console.warn('Service worker no disponible (normal si abres el archivo directo, sin https):', e);
+    });
+  });
+}
+
+let promptInstalacion = null;
+const btnInstalar = document.getElementById('btnInstalar');
+
+window.addEventListener('beforeinstallprompt', (event) => {
+  event.preventDefault();
+  promptInstalacion = event;
+  if (btnInstalar) btnInstalar.style.display = 'inline-block';
+});
+
+if (btnInstalar) {
+  btnInstalar.addEventListener('click', async () => {
+    if (!promptInstalacion) return;
+    promptInstalacion.prompt();
+    await promptInstalacion.userChoice;
+    promptInstalacion = null;
+    btnInstalar.style.display = 'none';
+  });
+}
+
+window.addEventListener('appinstalled', () => {
+  if (btnInstalar) btnInstalar.style.display = 'none';
+});
+
+// -------- CLIMA REAL (Open-Meteo, gratis, sin API key) --------
+const btnClima = document.getElementById('btnClima');
+const climaEstado = document.getElementById('climaEstado');
+const climaGrid = document.getElementById('climaGrid');
+const climaConsejo = document.getElementById('climaConsejo');
+
+btnClima.addEventListener('click', () => {
+  if (!navigator.geolocation) {
+    climaEstado.textContent = 'Tu navegador no soporta ubicación';
+    return;
+  }
+  climaEstado.textContent = 'Obteniendo ubicación...';
+  navigator.geolocation.getCurrentPosition(consultarClima, (err) => {
+    climaEstado.textContent = 'No se pudo obtener tu ubicación: ' + err.message;
+  });
+});
+
+async function consultarClima(posicion){
+  const { latitude, longitude } = posicion.coords;
+  climaEstado.textContent = 'Consultando clima...';
+
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}` +
+      `&current=temperature_2m,relative_humidity_2m,precipitation` +
+      `&daily=precipitation_probability_max&timezone=auto`;
+
+    const resp = await fetch(url);
+    const datos = await resp.json();
+
+    const tempExterior = datos.current.temperature_2m;
+    const humedadExterior = datos.current.relative_humidity_2m;
+    const precipActual = datos.current.precipitation;
+    const probLluviaHoy = datos.daily.precipitation_probability_max[0];
+
+    document.getElementById('climaTemp').textContent = tempExterior + '°C';
+    document.getElementById('climaHumedad').textContent = humedadExterior + '%';
+    document.getElementById('climaLluvia').textContent = probLluviaHoy + '%';
+    document.getElementById('climaPrecip').textContent = precipActual + ' mm';
+
+    climaGrid.style.display = 'grid';
+    climaEstado.textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-MX');
+
+    let consejo;
+    if (probLluviaHoy >= 60) {
+      consejo = '🌧️ Alta probabilidad de lluvia hoy — quizás puedas ahorrarte el riego.';
+    } else if (probLluviaHoy >= 25) {
+      consejo = '⛅ Podría llover, mantente al pendiente antes de regar.';
+    } else {
+      consejo = '☀️ Baja probabilidad de lluvia — probablemente sí necesites regar hoy.';
+    }
+    climaConsejo.textContent = consejo;
+    climaConsejo.style.display = 'block';
+
+  } catch (e) {
+    console.error(e);
+    climaEstado.textContent = 'Error consultando el clima';
+  }
+}
+</script>
+
+</body>
+</html>
