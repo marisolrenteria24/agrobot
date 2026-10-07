@@ -8,7 +8,10 @@ const ARCHIVOS_CASCARON = [
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  './icon-512-maskable.png'
+  './icon-512-maskable.png',
+  // Integración Kindwise (rama feature/kindwise-api-integration): se precachea
+  // el módulo nuevo para que el panel de salud de planta funcione también offline.
+  './kindwise_plant_health.js'
 ];
 
 self.addEventListener('install', (event) => {

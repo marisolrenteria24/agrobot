@@ -749,6 +749,27 @@
     </div>
   </div>
 
+  <!-- ====== SALUD DE LA PLANTA · KINDWISE (integración nueva, ver README_KINDWISE.md) ====== -->
+  <div class="panel-full">
+    <h2 style="font-size:12px; margin:0 0 4px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Salud de la planta · Kindwise</h2>
+    <p class="hint" style="margin-top:0;">
+      Reenvía la foto del diagnóstico a las Plant Health APIs de Kindwise: la pública
+      (sin llave, 10 consultas por IP cada 24 h) o la privada (con tu Api-Key de admin.kindwise.com).
+    </p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+      <button id="btnKindwisePublica" class="btn-historial">Analizar con API pública</button>
+      <button id="btnKindwisePrivada" class="btn-historial btn-historial-secundario">Analizar con API privada</button>
+      <span id="kindwiseEstado" class="control-sub">Usa la foto del panel de diagnóstico</span>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:12px;">
+      <span class="control-sub">Api-Key privada</span>
+      <input type="password" id="kindwiseApiKey" placeholder="Api-Key de Kindwise"
+        style="flex:1; min-width:200px; padding:9px 10px; border-radius:8px; background:var(--soil-800); border:1px solid var(--soil-700); color:var(--text-100); font-family:var(--font-mono); font-size:12px;">
+      <span id="kindwiseLlaveEstado" class="control-sub">sin llave guardada</span>
+    </div>
+    <div id="kindwiseResultado" style="margin-top:14px; font-family:var(--font-mono); font-size:13px; display:none;"></div>
+  </div>
+
   <div class="panel-full">
     <h2 style="font-size:12px; margin:0 0 4px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Bitácora de la planta</h2>
     <p class="hint" style="margin-top:0;">Se guarda mientras la app esté abierta. Descarga las fotos que quieras conservar.</p>
@@ -1539,7 +1560,13 @@ async function consultarClima(posicion){
     climaEstado.textContent = 'Error consultando el clima';
   }
 }
+
+// -------- KINDWISE: PLANT HEALTH API (integración nueva, rama feature/kindwise-api-integration) --------
+// La lógica vive en kindwise_plant_health.js para no tocar el código original:
+// API pública = agents.kindwise.com/plant_id/health_assessment (sin llave)
+// API privada = plant.id/api/v3/health_assessment (header Api-Key)
 </script>
+<script src="kindwise_plant_health.js"></script>
 
 </body>
 </html>
