@@ -224,7 +224,7 @@
     margin-bottom:20px;
   }
 
-  /* ---------- BOMBA / SERVO ---------- */
+  /* ---------- BOMBA DE RIEGO ---------- */
   .control-row{
     display:flex;
     align-items:center;
@@ -269,13 +269,6 @@
   .switch input:checked + .slider-toggle{ background:var(--leaf-600); }
   .switch input:checked + .slider-toggle::before{ transform:translateX(24px); }
   .switch input:disabled + .slider-toggle{ opacity:0.4; cursor:not-allowed; }
-
-  .servo-wrap{ width:100%; }
-  input[type="range"]{
-    width:100%;
-    accent-color: var(--sky-400);
-    height:4px;
-  }
 
   /* ---------- TELEMETRY ---------- */
   .tele-grid{
@@ -494,7 +487,7 @@
 
   <header>
     <div class="brand">
-      <div class="brand-mark">🌱</div>
+      <div class="brand-mark">A</div>
       <div>
         <h1>AgroBot</h1>
         <p>Carrito agrónomo · Control BLE</p>
@@ -510,9 +503,9 @@
   </header>
 
   <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:12px; flex-wrap:wrap;">
-    <button id="btnInstalar" class="btn-historial" style="display:none;">⬇️ Instalar app</button>
-    <button id="btnTema" class="btn-historial btn-historial-secundario">🌙 Modo oscuro</button>
-    <button id="btnNotificaciones" class="btn-historial btn-historial-secundario">🔔 Activar avisos</button>
+    <button id="btnInstalar" class="btn-historial" style="display:none;">Instalar app</button>
+    <button id="btnTema" class="btn-historial btn-historial-secundario">Modo oscuro</button>
+    <button id="btnNotificaciones" class="btn-historial btn-historial-secundario">Activar avisos</button>
   </div>
 
   <div class="grid">
@@ -521,11 +514,11 @@
     <div class="panel">
       <h2>Movimiento</h2>
       <div class="dpad">
-        <button class="dpad-btn up" data-cmd="ADELANTE" disabled>▲</button>
-        <button class="dpad-btn left" data-cmd="IZQUIERDA" disabled>◀</button>
+        <button class="dpad-btn up" data-cmd="ADELANTE" disabled>↑</button>
+        <button class="dpad-btn left" data-cmd="IZQUIERDA" disabled>←</button>
         <button class="dpad-btn stop" data-cmd="DETENER" disabled>STOP</button>
-        <button class="dpad-btn right" data-cmd="DERECHA" disabled>▶</button>
-        <button class="dpad-btn down" data-cmd="ATRAS" disabled>▼</button>
+        <button class="dpad-btn right" data-cmd="DERECHA" disabled>→</button>
+        <button class="dpad-btn down" data-cmd="ATRAS" disabled>↓</button>
       </div>
       <p class="hint">Mantén presionado para moverte · suelta para detener</p>
 
@@ -549,16 +542,6 @@
           <input type="checkbox" id="riegoAutoToggle" disabled>
           <span class="slider-toggle"></span>
         </label>
-      </div>
-
-      <div class="control-row" style="display:block;">
-        <div style="display:flex; justify-content:space-between;">
-          <div class="control-label">Servo aspersor</div>
-          <div class="control-sub" id="servoVal">50%</div>
-        </div>
-        <div class="servo-wrap" style="margin-top:10px;">
-          <input type="range" id="servoSlider" min="0" max="100" value="50" disabled>
-        </div>
       </div>
     </div>
 
@@ -637,7 +620,7 @@
     <h2 style="font-size:12px; margin:0 0 4px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Clima real de tu zona</h2>
     <p class="hint" style="margin-top:0;">Datos de Open-Meteo (gratis, sin cuenta). Útil para comparar contra tus sensores y decidir si conviene regar hoy.</p>
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-      <button id="btnClima" class="btn-historial">📍 Usar mi ubicación</button>
+      <button id="btnClima" class="btn-historial">Usar mi ubicación</button>
       <span id="climaEstado" class="control-sub">Sin datos todavía</span>
     </div>
     <div class="graficas-grid" id="climaGrid" style="margin-top:14px; display:none;">
@@ -688,41 +671,13 @@
   </div>
 
   <div class="panel-full">
-    <h2 style="font-size:12px; margin:0 0 16px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Música</h2>
-    <p class="hint" style="margin-top:0;">
-      Sube tu propia canción (o una gratuita de bancos como Pixabay Music /
-      YouTube Audio Library). No incluyo música con derechos de autor.
-    </p>
-    <input type="file" accept="audio/*" id="inputMusica" style="display:none;">
-    <audio id="reproductor" loop></audio>
-    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-      <button id="btnElegirMusica" class="btn-historial btn-historial-secundario">🎵 Elegir canción</button>
-      <button id="btnPlayPause" class="btn-historial" disabled>▶ Reproducir</button>
-    </div>
-    <div style="display:flex; align-items:center; gap:10px; margin-top:14px;">
-      <span class="control-sub">Volumen</span>
-      <input type="range" id="volumenSlider" min="0" max="100" value="60" style="flex:1;">
-    </div>
-    <div class="control-row" style="margin-top:14px;">
-      <div>
-        <div class="control-label">Reproducir al conectar</div>
-        <div class="control-sub" id="cancionNombre">ninguna canción cargada</div>
-      </div>
-      <label class="switch">
-        <input type="checkbox" id="autoplayToggle">
-        <span class="slider-toggle"></span>
-      </label>
-    </div>
-  </div>
-
-  <div class="panel-full">
     <h2 style="font-size:12px; margin:0 0 16px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Control por voz</h2>
     <p class="hint" style="margin-top:0;">
       Di: "adelante", "atrás", "izquierda", "derecha", "detente", "prende la bomba",
       "apaga la bomba". Solo funciona en Chrome.
     </p>
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-      <button id="btnVoz" class="btn-historial" disabled>🎙️ Activar control por voz</button>
+      <button id="btnVoz" class="btn-historial" disabled>Activar control por voz</button>
       <span id="vozEstado" class="control-sub">Conéctate al carrito primero</span>
     </div>
   </div>
@@ -735,7 +690,7 @@
     </p>
     <input type="file" accept="image/*" capture="environment" id="inputFotoPlanta" style="display:none;">
     <div style="display:flex; gap:10px; flex-wrap:wrap;">
-      <button id="btnTomarFoto" class="btn-historial">📷 Tomar foto</button>
+      <button id="btnTomarFoto" class="btn-historial">Tomar foto</button>
       <button id="btnAnalizarFoto" class="btn-historial btn-historial-secundario" disabled>Analizar</button>
     </div>
     <img id="previewFoto" style="display:none; max-width:100%; border-radius:10px; margin-top:14px; border:1px solid var(--soil-700);">
@@ -745,29 +700,36 @@
       style="width:100%; margin-top:14px; padding:10px; border-radius:8px; background:var(--soil-800); border:1px solid var(--soil-700); color:var(--text-100); font-family:inherit; resize:vertical;"></textarea>
 
     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
-      <button id="btnGuardarBitacora" class="btn-historial">📓 Guardar en bitácora</button>
+      <button id="btnGuardarBitacora" class="btn-historial">Guardar en bitácora</button>
     </div>
   </div>
 
-  <!-- ====== SALUD DE LA PLANTA · KINDWISE (integración nueva, ver README_KINDWISE.md) ====== -->
+  <!-- ====== ANÁLISIS DE PLANTAS: API Kindwise + base local (ver README.md) ====== -->
   <div class="panel-full">
-    <h2 style="font-size:12px; margin:0 0 4px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Salud de la planta · Kindwise</h2>
+    <h2 style="font-size:12px; margin:0 0 4px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Análisis de plantas</h2>
     <p class="hint" style="margin-top:0;">
-      Reenvía la foto del diagnóstico a las Plant Health APIs de Kindwise: la pública
-      (sin llave, 10 consultas por IP cada 24 h) o la privada (con tu Api-Key de admin.kindwise.com).
+      Toma la foto del diagnóstico y consulta de una sola vez la API de Kindwise y la
+      base de datos local <span style="font-family:var(--font-mono);">plantas_local.json</span>.
+      Los dos resultados se mezclan en una sola lista; si una fuente no contesta, se
+      muestra la otra.
     </p>
     <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-      <button id="btnKindwisePublica" class="btn-historial">Analizar con API pública</button>
-      <button id="btnKindwisePrivada" class="btn-historial btn-historial-secundario">Analizar con API privada</button>
-      <span id="kindwiseEstado" class="control-sub">Usa la foto del panel de diagnóstico</span>
+      <button id="btnAnalizarPlantas" class="btn-historial">Analizar planta</button>
+      <span id="analisisEstado" class="control-sub">Usa la foto del panel de diagnóstico</span>
     </div>
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:12px;">
-      <span class="control-sub">Api-Key privada</span>
-      <input type="password" id="kindwiseApiKey" placeholder="Api-Key de Kindwise"
+      <span class="control-sub">Api-Key de Kindwise (opcional)</span>
+      <input type="password" id="analisisApiKey" placeholder="Con llave se usa el endpoint privado"
         style="flex:1; min-width:200px; padding:9px 10px; border-radius:8px; background:var(--soil-800); border:1px solid var(--soil-700); color:var(--text-100); font-family:var(--font-mono); font-size:12px;">
-      <span id="kindwiseLlaveEstado" class="control-sub">sin llave guardada</span>
+      <span id="analisisLlaveEstado" class="control-sub">sin llave guardada</span>
     </div>
-    <div id="kindwiseResultado" style="margin-top:14px; font-family:var(--font-mono); font-size:13px; display:none;"></div>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:10px;">
+      <span class="control-sub">Buscar solo en la base local</span>
+      <input type="search" id="analisisBusqueda" placeholder="nombre o síntoma (ej. amarillas)"
+        style="flex:1; min-width:200px; padding:9px 10px; border-radius:8px; background:var(--soil-800); border:1px solid var(--soil-700); color:var(--text-100); font-family:var(--font-mono); font-size:12px;">
+      <button id="btnBuscarLocal" class="btn-historial btn-historial-secundario">Buscar</button>
+    </div>
+    <div id="analisisResultado" style="margin-top:14px; display:none;"></div>
   </div>
 
   <div class="panel-full">
@@ -796,8 +758,6 @@ const bombaToggle  = document.getElementById('bombaToggle');
 const bombaSub     = document.getElementById('bombaSub');
 const riegoAutoToggle = document.getElementById('riegoAutoToggle');
 const riegoAutoSub    = document.getElementById('riegoAutoSub');
-const servoSlider  = document.getElementById('servoSlider');
-const servoVal     = document.getElementById('servoVal');
 
 const tempVal   = document.getElementById('tempVal');
 const humVal    = document.getElementById('humVal');
@@ -825,7 +785,6 @@ function setConnectedUI(connected){
   dpadButtons.forEach(b => b.disabled = !connected);
   bombaToggle.disabled = !connected;
   riegoAutoToggle.disabled = !connected;
-  servoSlider.disabled = !connected;
   btnVoz.disabled = !connected || !SpeechRecognitionAPI;
   vozEstado.textContent = connected
     ? (SpeechRecognitionAPI ? 'Listo para escuchar' : 'Este navegador no soporta control por voz')
@@ -859,7 +818,6 @@ async function connect(){
 
     setConnectedUI(true);
     reproducirChime('conexion');
-    intentarAutoplayMusica();
   } catch (err) {
     console.error(err);
     statusText.textContent = 'Error al conectar';
@@ -947,15 +905,6 @@ function evaluarRiegoAutomatico(sueloPct, bombaEncendida){
   }
 }
 
-// -------- SERVO --------
-let servoDebounce;
-servoSlider.addEventListener('input', () => {
-  const v = servoSlider.value;
-  servoVal.textContent = v + '%';
-  clearTimeout(servoDebounce);
-  servoDebounce = setTimeout(() => sendCommand('SERVO:' + v), 80);
-});
-
 // -------- TELEMETRIA --------
 function onTelemetry(event){
   const decoder = new TextDecoder();
@@ -1010,10 +959,10 @@ function onTelemetry(event){
   const obstaculo = data.ALARMA === '1';
 
   const mensajes = [];
-  if (obstaculo)     mensajes.push('⚠ Obstáculo cercano');
-  if (alertaAire)    mensajes.push('⚠ Calidad de aire mala (MQ135)');
-  if (alertaLluvia)  mensajes.push('⚠ Agua / lluvia detectada (FC-37)');
-  if (tanqueVacio)   mensajes.push('⚠ Nivel de tanque bajo');
+  if (obstaculo)     mensajes.push('Obstáculo cercano');
+  if (alertaAire)    mensajes.push('Calidad de aire mala (MQ135)');
+  if (alertaLluvia)  mensajes.push('Agua / lluvia detectada (FC-37)');
+  if (tanqueVacio)   mensajes.push('Nivel de tanque bajo');
 
   if (mensajes.length > 0) {
     alarmBanner.classList.add('active');
@@ -1198,16 +1147,16 @@ btnAnalizarFoto.addEventListener('click', () => {
   }
 
   if (totalHoja < 50) {
-    resultadoAnalisis.innerHTML = '⚠️ No se detectó suficiente follaje en la foto. Acércate más a la planta e intenta de nuevo.';
+    resultadoAnalisis.innerHTML = 'No se detectó suficiente follaje en la foto. Acércate más a la planta e intenta de nuevo.';
   } else {
     const pctVerde = Math.round((verdes / totalHoja) * 100);
     let mensaje;
     if (pctVerde >= 65) {
-      mensaje = `🌿 Se ve saludable — ~${pctVerde}% del follaje detectado es verde.`;
+      mensaje = `Se ve saludable — ~${pctVerde}% del follaje detectado es verde.`;
     } else if (pctVerde >= 35) {
-      mensaje = `🍂 Posible estrés leve — ~${pctVerde}% verde, el resto amarillento/seco. Revisa riego o luz.`;
+      mensaje = `Posible estrés leve — ~${pctVerde}% verde, el resto amarillento/seco. Revisa riego o luz.`;
     } else {
-      mensaje = `⚠️ Posible estrés o enfermedad — solo ~${pctVerde}% de follaje verde detectado.`;
+      mensaje = `Posible estrés o enfermedad — solo ~${pctVerde}% de follaje verde detectado.`;
     }
     resultadoAnalisis.innerHTML = mensaje + '<br><span style="opacity:0.6; font-size:11px;">Análisis por color, no es diagnóstico profesional.</span>';
   }
@@ -1252,7 +1201,7 @@ function renderizarBitacora(){
 
     const imgHtml = entrada.foto
       ? `<img src="${entrada.foto}" alt="foto planta">`
-      : `<div style="width:72px; height:72px; border-radius:8px; background:var(--soil-700); display:flex; align-items:center; justify-content:center; font-size:22px;">📓</div>`;
+      : `<div style="width:72px; height:72px; border-radius:8px; background:var(--soil-700); display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--text-400);">Sin foto</div>`;
 
     const descargarHtml = entrada.foto
       ? `<a class="bitacora-descargar" download="agrobot_bitacora_${idx}.jpg" href="${entrada.foto}">Descargar foto</a>`
@@ -1275,7 +1224,7 @@ function renderizarBitacora(){
 const btnTema = document.getElementById('btnTema');
 btnTema.addEventListener('click', () => {
   const claro = document.body.classList.toggle('light-mode');
-  btnTema.textContent = claro ? '☀️ Modo claro' : '🌙 Modo oscuro';
+  btnTema.textContent = claro ? 'Modo claro' : 'Modo oscuro';
 });
 
 // -------- NOTIFICACIONES Y VIBRACION --------
@@ -1290,7 +1239,7 @@ btnNotificaciones.addEventListener('click', async () => {
   }
   const permiso = await Notification.requestPermission();
   notificacionesActivas = permiso === 'granted';
-  btnNotificaciones.textContent = notificacionesActivas ? '🔔 Avisos activos' : '🔕 Sin permiso';
+  btnNotificaciones.textContent = notificacionesActivas ? 'Avisos activos' : 'Sin permiso';
 });
 
 function notificarAlertaSiEsNueva(mensajes){
@@ -1302,7 +1251,7 @@ function notificarAlertaSiEsNueva(mensajes){
 
   if (notificacionesActivas && Notification.permission === 'granted') {
     new Notification('AgroBot · Alerta', {
-      body: mensajes.join(' · ').replace(/⚠ /g, ''),
+      body: mensajes.join(' · '),
       icon: undefined
     });
   }
@@ -1362,11 +1311,11 @@ btnVoz.addEventListener('click', () => {
   vozActiva = !vozActiva;
   if (vozActiva) {
     reconocimiento.start();
-    btnVoz.textContent = '🛑 Desactivar control por voz';
+    btnVoz.textContent = 'Desactivar control por voz';
     vozEstado.textContent = 'Escuchando...';
   } else {
     reconocimiento.stop();
-    btnVoz.textContent = '🎙️ Activar control por voz';
+    btnVoz.textContent = 'Activar control por voz';
     vozEstado.textContent = 'Control por voz desactivado';
   }
 });
@@ -1417,56 +1366,6 @@ function reproducirChime(tipo){
     }
   } catch (e) {
     console.warn('No se pudo reproducir el chime:', e);
-  }
-}
-
-// -------- REPRODUCTOR DE MUSICA (tu propia cancion) --------
-const inputMusica = document.getElementById('inputMusica');
-const btnElegirMusica = document.getElementById('btnElegirMusica');
-const reproductor = document.getElementById('reproductor');
-const btnPlayPause = document.getElementById('btnPlayPause');
-const volumenSlider = document.getElementById('volumenSlider');
-const cancionNombre = document.getElementById('cancionNombre');
-const autoplayToggle = document.getElementById('autoplayToggle');
-
-reproductor.volume = volumenSlider.value / 100;
-
-btnElegirMusica.addEventListener('click', () => inputMusica.click());
-
-inputMusica.addEventListener('change', (e) => {
-  const archivo = e.target.files[0];
-  if (!archivo) return;
-  const url = URL.createObjectURL(archivo);
-  reproductor.src = url;
-  cancionNombre.textContent = archivo.name;
-  btnPlayPause.disabled = false;
-});
-
-btnPlayPause.addEventListener('click', () => {
-  if (reproductor.paused) {
-    reproductor.play();
-    btnPlayPause.textContent = '⏸ Pausar';
-  } else {
-    reproductor.pause();
-    btnPlayPause.textContent = '▶ Reproducir';
-  }
-});
-
-volumenSlider.addEventListener('input', () => {
-  reproductor.volume = volumenSlider.value / 100;
-});
-
-reproductor.addEventListener('ended', () => {
-  btnPlayPause.textContent = '▶ Reproducir';
-});
-
-function intentarAutoplayMusica(){
-  if (autoplayToggle.checked && reproductor.src) {
-    reproductor.play().then(() => {
-      btnPlayPause.textContent = '⏸ Pausar';
-    }).catch(() => {
-      // el navegador puede bloquear el autoplay hasta que el usuario interactue una vez
-    });
   }
 }
 
@@ -1546,11 +1445,11 @@ async function consultarClima(posicion){
 
     let consejo;
     if (probLluviaHoy >= 60) {
-      consejo = '🌧️ Alta probabilidad de lluvia hoy — quizás puedas ahorrarte el riego.';
+      consejo = 'Alta probabilidad de lluvia hoy — quizás puedas ahorrarte el riego.';
     } else if (probLluviaHoy >= 25) {
-      consejo = '⛅ Podría llover, mantente al pendiente antes de regar.';
+      consejo = 'Podría llover, mantente al pendiente antes de regar.';
     } else {
-      consejo = '☀️ Baja probabilidad de lluvia — probablemente sí necesites regar hoy.';
+      consejo = 'Baja probabilidad de lluvia — probablemente sí necesites regar hoy.';
     }
     climaConsejo.textContent = consejo;
     climaConsejo.style.display = 'block';
@@ -1561,12 +1460,12 @@ async function consultarClima(posicion){
   }
 }
 
-// -------- KINDWISE: PLANT HEALTH API (integración nueva, rama feature/kindwise-api-integration) --------
-// La lógica vive en kindwise_plant_health.js para no tocar el código original:
-// API pública = agents.kindwise.com/plant_id/health_assessment (sin llave)
-// API privada = plant.id/api/v3/health_assessment (header Api-Key)
+// -------- ANÁLISIS DE PLANTAS (integración, rama feature/kindwise-api-integration) --------
+// La lógica vive en analisis_plantas.js para no tocar el código original:
+// consulta la API de Kindwise (endpoint privado si hay Api-Key, público si no)
+// y la base de datos local plantas_local.json, y mezcla ambas en una sola lista.
 </script>
-<script src="kindwise_plant_health.js"></script>
+<script src="analisis_plantas.js"></script>
 
 </body>
 </html>
