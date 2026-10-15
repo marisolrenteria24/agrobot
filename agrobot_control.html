@@ -704,6 +704,21 @@
     </div>
   </div>
 
+  <!-- ====== INTELIGENCIA AGRONÓMICA LOCAL (ver inteligencia_agronomica.js) ====== -->
+  <div class="panel-full">
+    <h2 style="font-size:12px; margin:0 0 4px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Inteligencia agronómica</h2>
+    <p class="hint" style="margin-top:0;">
+      Cruza la foto del diagnóstico, los sensores del carrito y el clima para
+      darte un índice de salud (0-100), el detalle de qué lo bajó o lo subió y
+      qué hacer. Todo se calcula en el navegador: sin API y sin internet.
+    </p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+      <button id="btnEvaluarPlanta" class="btn-historial">Evaluar planta</button>
+      <span id="iaEstado" class="control-sub">Toma una foto y/o conecta el carrito primero</span>
+    </div>
+    <div id="iaResultado" style="margin-top:14px; display:none;"></div>
+  </div>
+
   <div class="panel-full">
     <h2 style="font-size:12px; margin:0 0 4px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Bitácora de la planta</h2>
     <p class="hint" style="margin-top:0;">Se guarda mientras la app esté abierta. Descarga las fotos que quieras conservar.</p>
@@ -889,6 +904,7 @@ function onTelemetry(event){
     if (k) data[k] = v;
   });
 
+  window.__ultimaTelemetria = data; // la usa la inteligencia agronómica
   registrarLectura(data);
 
   if (data.TEMP  !== undefined) tempVal.textContent  = data.TEMP + '°C';
@@ -1085,6 +1101,7 @@ inputFotoPlanta.addEventListener('change', (e) => {
       previewFoto.style.display = 'block';
       btnAnalizarFoto.disabled = false;
       resultadoAnalisis.style.display = 'none';
+      window.__imagenDiagnostico = imagenCargada; // la usa la inteligencia agronómica
     };
     imagenCargada.src = evt.target.result;
   };
@@ -1415,6 +1432,9 @@ async function consultarClima(posicion){
     climaGrid.style.display = 'grid';
     climaEstado.textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-MX');
 
+    // La usa la inteligencia agronómica para decidir si conviene regar
+    window.__climaActual = { tempExterior, humedadExterior, precipActual, probLluviaHoy };
+
     let consejo;
     if (probLluviaHoy >= 60) {
       consejo = 'Alta probabilidad de lluvia hoy — quizás puedas ahorrarte el riego.';
@@ -1433,6 +1453,8 @@ async function consultarClima(posicion){
 }
 
 </script>
+
+<script src="inteligencia_agronomica.js"></script>
 
 </body>
 </html>

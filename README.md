@@ -19,11 +19,36 @@ Se retiró la integración con la API de Kindwise (endpoint público
 `agents.kindwise.com` y endpoint privado `plant.id`), su campo de Api-Key, el
 módulo `analisis_plantas.js` y la base de datos local `plantas_local.json`.
 
+## Inteligencia agronómica local
+
+El panel **Inteligencia agronómica** (`inteligencia_agronomica.js`) cruza tres
+fuentes que la app ya tiene y todo se calcula en el navegador (sin API, sin
+llaves, funciona offline):
+
+1. **La foto** del panel de diagnóstico, con análisis de color avanzado:
+   verde sano, verde pálido (estrés hídrico), amarillo (nutrición), café/seco
+   (tejido muerto) y manchas oscuras (posible hongo).
+2. **La telemétrica del carrito**: humedad del suelo, temperatura y nivel del
+   tanque de agua.
+3. **El clima** de Open-Meteo: probabilidad de lluvia para decidir si conviene
+   regar.
+
+La salida es un índice de salud 0-100 con semáforo, la lista de factores que
+bajaron o subieron el índice (con los puntos de cada uno), las acciones
+recomendadas y la tendencia contra la evaluación anterior (guardada en
+`localStorage`). Si falta una fuente, el motor lo dice explícitamente en
+"Faltan datos".
+
+Para probarlo sin el carrito, desde la consola del navegador:
+`window.agrobotTelemetriaDemo = { SUELO: '22', TEMP: '37.5', AGUA: '55' }` y
+`window.agrobotImagenDemo` con el dataURL de una foto.
+
 ## Archivos
 
 | Archivo | Contenido |
 |---|---|
-| `agrobot_control.html` | Panel de control completo (Bluetooth, telemetría, clima, diagnóstico por color, bitácora). |
+| `agrobot_control.html` | Panel de control completo (Bluetooth, telemetría, clima, diagnóstico por color, inteligencia agronómica, bitácora). |
+| `inteligencia_agronomica.js` | Motor local: foto + sensores + clima → índice de salud y recomendaciones. |
 | `sw.js` | Service worker: cachea el cascarón de la app. |
 | `manifest.json` | Datos de la PWA. |
 | `icon-192.png`, `icon-512.png`, `icon-512-maskable.png` | Iconos de la PWA. |

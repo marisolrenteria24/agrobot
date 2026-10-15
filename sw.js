@@ -8,7 +8,9 @@ const ARCHIVOS_CASCARON = [
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  './icon-512-maskable.png'
+  './icon-512-maskable.png',
+  // Inteligencia agronómica local (funciona offline, sin API)
+  './inteligencia_agronomica.js'
 ];
 
 self.addEventListener('install', (event) => {
