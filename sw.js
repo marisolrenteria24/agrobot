@@ -2,13 +2,17 @@
 // y muestre algo aunque no haya internet. El control BLE en si siempre
 // necesita que el celular este cerca del ESP32, eso no cambia.
 
-const CACHE_NAME = 'agrobot-cache-v1';
+// Al subir una versión nueva hay que cambiar este número: es lo que le dice al
+// navegador que descarte la caché vieja y baje los archivos actualizados.
+const CACHE_NAME = 'agrobot-cache-v2';
 const ARCHIVOS_CASCARON = [
   './agrobot_control.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  './icon-512-maskable.png'
+  './icon-512-maskable.png',
+  // Inteligencia agronómica local (funciona offline, sin API)
+  './inteligencia_agronomica.js'
 ];
 
 self.addEventListener('install', (event) => {
