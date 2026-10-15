@@ -704,34 +704,6 @@
     </div>
   </div>
 
-  <!-- ====== ANÁLISIS DE PLANTAS: API Kindwise + base local (ver README.md) ====== -->
-  <div class="panel-full">
-    <h2 style="font-size:12px; margin:0 0 4px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Análisis de plantas</h2>
-    <p class="hint" style="margin-top:0;">
-      Toma la foto del diagnóstico y consulta de una sola vez la API de Kindwise y la
-      base de datos local <span style="font-family:var(--font-mono);">plantas_local.json</span>.
-      Los dos resultados se mezclan en una sola lista; si una fuente no contesta, se
-      muestra la otra.
-    </p>
-    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-      <button id="btnAnalizarPlantas" class="btn-historial">Analizar planta</button>
-      <span id="analisisEstado" class="control-sub">Usa la foto del panel de diagnóstico</span>
-    </div>
-    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:12px;">
-      <span class="control-sub">Api-Key de Kindwise (opcional)</span>
-      <input type="password" id="analisisApiKey" placeholder="Con llave se usa el endpoint privado"
-        style="flex:1; min-width:200px; padding:9px 10px; border-radius:8px; background:var(--soil-800); border:1px solid var(--soil-700); color:var(--text-100); font-family:var(--font-mono); font-size:12px;">
-      <span id="analisisLlaveEstado" class="control-sub">sin llave guardada</span>
-    </div>
-    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:10px;">
-      <span class="control-sub">Buscar solo en la base local</span>
-      <input type="search" id="analisisBusqueda" placeholder="nombre o síntoma (ej. amarillas)"
-        style="flex:1; min-width:200px; padding:9px 10px; border-radius:8px; background:var(--soil-800); border:1px solid var(--soil-700); color:var(--text-100); font-family:var(--font-mono); font-size:12px;">
-      <button id="btnBuscarLocal" class="btn-historial btn-historial-secundario">Buscar</button>
-    </div>
-    <div id="analisisResultado" style="margin-top:14px; display:none;"></div>
-  </div>
-
   <div class="panel-full">
     <h2 style="font-size:12px; margin:0 0 4px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Bitácora de la planta</h2>
     <p class="hint" style="margin-top:0;">Se guarda mientras la app esté abierta. Descarga las fotos que quieras conservar.</p>
@@ -1460,12 +1432,7 @@ async function consultarClima(posicion){
   }
 }
 
-// -------- ANÁLISIS DE PLANTAS (integración, rama feature/kindwise-api-integration) --------
-// La lógica vive en analisis_plantas.js para no tocar el código original:
-// consulta la API de Kindwise (endpoint privado si hay Api-Key, público si no)
-// y la base de datos local plantas_local.json, y mezcla ambas en una sola lista.
 </script>
-<script src="analisis_plantas.js"></script>
 
 </body>
 </html>

@@ -8,11 +8,7 @@ const ARCHIVOS_CASCARON = [
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  './icon-512-maskable.png',
-  // Análisis de plantas (rama feature/kindwise-api-integration): el módulo y la
-  // base de datos local se precachean para que el análisis funcione también offline.
-  './analisis_plantas.js',
-  './plantas_local.json'
+  './icon-512-maskable.png'
 ];
 
 self.addEventListener('install', (event) => {
