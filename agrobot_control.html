@@ -685,8 +685,10 @@
   <div class="panel-full">
     <h2 style="font-size:12px; margin:0 0 16px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Diagnóstico de planta</h2>
     <p class="hint" style="margin-top:0;">
-      Análisis básico por color (verde vs. amarillo/seco). No es una IA real —
-      es una estimación rápida, útil como primer vistazo.
+      Análisis por color (verde sano, amarillo, seco y manchas) que corrige la
+      exposición de la foto, para que una tomada a contraluz o muy oscura no se
+      diagnostique mal. No es una IA real — es una estimación rápida, útil como
+      primer vistazo.
     </p>
     <input type="file" accept="image/*" capture="environment" id="inputFotoPlanta" style="display:none;">
     <div style="display:flex; gap:10px; flex-wrap:wrap;">
@@ -695,6 +697,7 @@
     </div>
     <img id="previewFoto" style="display:none; max-width:100%; border-radius:10px; margin-top:14px; border:1px solid var(--soil-700);">
     <div id="resultadoAnalisis" style="margin-top:14px; font-family:var(--font-mono); font-size:13px; display:none;"></div>
+    <div id="comparacionFoto" style="margin-top:16px; display:none;"></div>
 
     <textarea id="notaBitacora" placeholder="Nota opcional (ej. 'le puse fertilizante', 'se ve marchita')" rows="2"
       style="width:100%; margin-top:14px; padding:10px; border-radius:8px; background:var(--soil-800); border:1px solid var(--soil-700); color:var(--text-100); font-family:inherit; resize:vertical;"></textarea>
@@ -708,11 +711,24 @@
   <div class="panel-full">
     <h2 style="font-size:12px; margin:0 0 4px; color:var(--text-400); letter-spacing:0.12em; text-transform:uppercase; font-family:var(--font-mono);">Inteligencia agronómica</h2>
     <p class="hint" style="margin-top:0;">
-      Cruza la foto del diagnóstico, los sensores del carrito y el clima para
-      darte un índice de salud (0-100), el detalle de qué lo bajó o lo subió y
-      qué hacer. Todo se calcula en el navegador: sin API y sin internet.
+      Cruza la foto del diagnóstico, los sensores del carrito, el clima, el
+      tipo de planta y las plagas que observes para darte un índice de salud
+      (0-100), el detalle de qué lo bajó o lo subió y qué hacer. Todo se calcula
+      en el navegador: sin API y sin internet.
     </p>
-    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px;">
+      <span class="control-sub">Tipo de planta</span>
+      <select id="iaTipoPlanta"
+        style="flex:1; min-width:200px; padding:9px 10px; border-radius:8px; background:var(--soil-800); border:1px solid var(--soil-700); color:var(--text-100); font-family:var(--font-mono); font-size:12px;">
+      </select>
+    </div>
+    <p class="hint" id="iaGuiaPlanta" style="margin-top:0; display:none;"></p>
+
+    <div class="metric-label" style="margin-top:12px;">Plagas que observes a simple vista</div>
+    <div id="iaPlagas" style="display:flex; flex-direction:column; gap:6px; margin-top:8px;"></div>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:14px;">
       <button id="btnEvaluarPlanta" class="btn-historial">Evaluar planta</button>
       <span id="iaEstado" class="control-sub">Toma una foto y/o conecta el carrito primero</span>
     </div>
@@ -1111,6 +1127,18 @@ inputFotoPlanta.addEventListener('change', (e) => {
 btnAnalizarFoto.addEventListener('click', () => {
   if (!imagenCargada) return;
 
+  // El módulo de inteligencia agronómica aporta el análisis con corrección de
+  // iluminación y el historial de comparación. Si no cargó, usa este conteo básico.
+  const diag = window.AgrobotDiagnostico;
+  if (diag) {
+    const metricas = diag.analizar(imagenCargada);
+    resultadoAnalisis.innerHTML = diag.mensaje(metricas) +
+      '<br><span style="opacity:0.6; font-size:11px;">Análisis por color, no es diagnóstico profesional.</span>';
+    resultadoAnalisis.style.display = 'block';
+    diag.registrarFoto(imagenCargada, metricas);
+    return;
+  }
+
   const canvas = document.createElement('canvas');
   const escala = 100; // reducir tamaño para analizar rapido
   canvas.width = escala;
@@ -1464,7 +1492,7 @@ async function consultarClima(posicion){
 
 </script>
 
-<script src="inteligencia_agronomica.js"></script>
+<script src="inteligencia_agronomica.js?v=9"></script>
 
 </body>
 </html>
