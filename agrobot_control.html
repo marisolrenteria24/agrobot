@@ -1364,6 +1364,16 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch((e) => {
       console.warn('Service worker no disponible (normal si abres el archivo directo, sin https):', e);
     });
+
+    // Cuando el navegador toma el control de una versión nueva del service
+    // worker, recarga una sola vez para que el usuario vea los cambios y no
+    // se quede pegado a la caché vieja.
+    let recargaHecha = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (recargaHecha) return;
+      recargaHecha = true;
+      window.location.reload();
+    });
   });
 }
 
