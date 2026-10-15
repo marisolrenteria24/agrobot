@@ -4,15 +4,16 @@
 
 // Al subir una versión nueva hay que cambiar este número: es lo que le dice al
 // navegador que descarte la caché vieja y baje los archivos actualizados.
-const CACHE_NAME = 'agrobot-cache-v2';
+const CACHE_NAME = 'agrobot-cache-v3';
 const ARCHIVOS_CASCARON = [
   './agrobot_control.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
   './icon-512-maskable.png',
-  // Inteligencia agronómica local (funciona offline, sin API)
-  './inteligencia_agronomica.js'
+  // Inteligencia agronómica local (funciona offline, sin API). La versión en la
+  // URL fuerza al navegador a bajar el archivo cuando cambia el código.
+  './inteligencia_agronomica.js?v=9'
 ];
 
 self.addEventListener('install', (event) => {
